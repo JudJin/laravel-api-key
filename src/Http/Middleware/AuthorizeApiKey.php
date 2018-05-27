@@ -20,7 +20,7 @@ class AuthorizeApiKey
      */
     public function handle(Request $request, Closure $next)
     {
-        $header = $request->header(self::AUTH_HEADER);
+        $header = $request->header(self::AUTH_HEADER) ?? $request->key;
         $apiKey = ApiKey::getByKey($header);
 
         if ($apiKey instanceof ApiKey) {
