@@ -46,6 +46,7 @@ class AuthorizeApiKey
         $event = new ApiKeyAccessEvent;
         $event->api_key_id = $apiKey->id;
         $event->ip_address = $request->ip();
+        $event->parameters = json_encode($request->all());
         $event->url        = $request->fullUrl();
         $event->save();
     }

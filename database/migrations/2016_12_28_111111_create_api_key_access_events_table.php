@@ -17,6 +17,7 @@ class CreateApiKeyAccessEventsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('api_key_id');
             $table->ipAddress('ip_address');
+            $table->text('parameters');
             $table->text('url');
             $table->timestamps();
 

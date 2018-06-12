@@ -18,9 +18,12 @@ class CreateApiKeysTable extends Migration
             $table->string('name');
             $table->string('key', 64);
             $table->boolean('active')->default(1);
+            $table->integer('user_id')->unsigned()->nullable();
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users');
             $table->timestamps();
             $table->softDeletes();
-
             $table->index('name');
             $table->index('key');
         });

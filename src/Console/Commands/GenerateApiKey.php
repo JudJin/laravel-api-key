@@ -18,7 +18,7 @@ class GenerateApiKey extends Command
      *
      * @var string
      */
-    protected $signature = 'apikey:generate {name}';
+    protected $signature = 'apikey:generate {name} {user_id?}';
 
     /**
      * The console command description.
@@ -44,6 +44,7 @@ class GenerateApiKey extends Command
         $apiKey       = new ApiKey;
         $apiKey->name = $name;
         $apiKey->key  = ApiKey::generate();
+        $apiKey->user_id = $this->argument('user_id');
         $apiKey->save();
 
         $this->info('API key created');
