@@ -11,7 +11,7 @@ class GenerateApiKey extends Command
      * Error messages
      */
     const MESSAGE_ERROR_INVALID_NAME_FORMAT = 'Invalid name.  Must be a lowercase alphabetic characters and hyphens less than 255 characters long.';
-    const MESSAGE_ERROR_NAME_ALREADY_USED   = 'Name is unavailable.';
+    const MESSAGE_ERROR_NAME_ALREADY_USED = 'Name is unavailable.';
 
     /**
      * The name and signature of the console command.
@@ -33,6 +33,7 @@ class GenerateApiKey extends Command
     public function handle()
     {
         $name = $this->argument('name');
+        $user_id = $this->argument('user_id') ?? null;
 
         $error = $this->validateName($name);
 
@@ -41,15 +42,38 @@ class GenerateApiKey extends Command
             return;
         }
 
-        $apiKey       = new ApiKey;
+        if (isset($user_id)) {
+
+            $userClass = config('auth.providers.users.model');
+
+            if (empty($userClass) || is_null($userClass)) {
+                $this->error("User model not found. Please check your config");
+                return;
+            }
+
+            $user = $userClass::find($user_id);
+
+            if (empty($user)) {
+                $this->error(sprintf('User with id %s does not exist', $user_id));
+                return;
+            }
+
+            if (ApiKey::where(['user_id' => $user_id, 'active' => 1])->exists()) {
+                $this->error(sprintf('User with id %s yet has an active key', $user_id));
+                return;
+            }
+        }
+
+
+        $apiKey = new ApiKey;
         $apiKey->name = $name;
-        $apiKey->key  = ApiKey::generate();
-        $apiKey->user_id = $this->argument('user_id');
+        $apiKey->key = ApiKey::generate();
+        $apiKey->user_id = $user_id;
         $apiKey->save();
 
         $this->info('API key created');
         $this->info('Name: ' . $apiKey->name);
-        $this->info('Key: '  . $apiKey->key);
+        $this->info('Key: ' . $apiKey->key);
     }
 
     /**
